@@ -2,28 +2,47 @@
 
 import { NextResponse } from "next/server";
 
-const BASE_URL = "https://www.myawesomesite.com";
+const BASE_URL = "https://wio.io";
 
 export async function GET() {
-  // Example static and dynamic paths
-  const staticPages = ["", "/about", "/contact"];
-  const dynamicPages = await getDynamicSlugs(); // e.g., from DB or API
+  const staticPages = [
+    { url: "", priority: 1.0 },
+    { url: "/about", priority: 0.8 },
+    { url: "/contact", priority: 0.6 },
+    { url: "/features", priority: 0.7 },
+    { url: "/pricing", priority: 0.7 },
+    { url: "/help", priority: 0.5 },
+  ];
+
+  const dynamicPages = await getDynamicSlugs();
 
   const urls = [
-    ...staticPages.map((page) => `${BASE_URL}${page}`),
-    ...dynamicPages.map((slug) => `${BASE_URL}/blog/${slug}`),
+    ...staticPages.map((page) => ({
+      loc: `${BASE_URL}${page.url}`,
+      priority: page.priority,
+      changefreq: "weekly",
+      lastmod: new Date().toISOString(),
+    })),
+    ...dynamicPages.map((slug) => ({
+      loc: `${BASE_URL}/blog/${slug}`,
+      priority: 0.6,
+      changefreq: "weekly",
+      lastmod: new Date().toISOString(),
+    })),
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${urls
-    .map(
-      (url) => `<url>
-  <loc>${url}</loc>
-  <lastmod>${new Date().toISOString()}</lastmod>
+${urls
+  .map(
+    (url) => `<url>
+  <loc>${url.loc}</loc>
+  <lastmod>${url.lastmod}</lastmod>
+  <changefreq>${url.changefreq}</changefreq>
+  <priority>${url.priority}</priority>
 </url>`
-    )
-    .join("")}
+  )
+  .join("\n")}
 </urlset>`;
 
   return new NextResponse(sitemap, {
@@ -33,7 +52,7 @@ export async function GET() {
   });
 }
 
+// Example dynamic blog pages
 async function getDynamicSlugs(): Promise<string[]> {
-  // Replace with actual DB/API call
-  return ["post-1", "post-2", "seo-optimized-post"];
+  return ["post-1", "secure-banking-tips", "investment-guide"];
 }

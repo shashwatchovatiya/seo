@@ -1,9 +1,11 @@
+// app/robots.txt/route.ts
+
 import { NextResponse } from "next/server";
 
 export function GET() {
   const content = `User-agent: *
 Allow: /
-Sitemap: https://www.myawesomesite.com/sitemap.xml`;
+Sitemap: https://wio.io/sitemap.xml`;
 
   return new NextResponse(content, {
     headers: {
